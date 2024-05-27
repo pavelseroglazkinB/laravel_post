@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\PriceCalculateService;
 use Illuminate\Http\Request;
 
 class IndexController extends Controller
@@ -13,5 +14,11 @@ class IndexController extends Controller
     public function __invoke(Request $request)
     {
         return view('admin.index');
+    }
+
+    public function calculate(Request $request, PriceCalculateService $service)
+    {
+        //dd($request->all());
+        dd($service->start($request->all(), 'minus'));
     }
 }

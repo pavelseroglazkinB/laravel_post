@@ -52,10 +52,11 @@ Route::prefix('admin')->as('admin.')->group(function () {
         ->name('news.create');
     Route::post('/news/store', [AdminNewsController::class, 'store'])
     ->name('news.store');
-    Route::get('/news/edit', [AdminNewsController::class, 'edit'])
+    Route::get('/news/{news}/edit', [AdminNewsController::class, 'edit'])
     ->name('news.edit');
-    Route::get('/news/update', [AdminNewsController::class, 'update'])
+    Route::put('/news/{news}/update', [AdminNewsController::class, 'update'])
     ->name('news.update');
+    Route::delete('news/{news}', [AdminNewsController::class, 'destroy'])->name('news.destroy');
     Route::get('/news/{id}', [AdminNewsController::class, 'show']);
 
 
@@ -80,3 +81,12 @@ Route::get('/categories/{cat}', [CategoriesController::class, 'category_show'])
 Route::get('/testexception', [CategoriesController::class, 'testException'])
     ->name('categories.testexception');
 
+//Service
+Route::get('/calc', [AdminController::class, 'calculate']);
+
+Route::get('/collection', function () {
+    $array = [1, 2, 3, 77, 07, 786, 856, 7234];
+    $collect = collect($array);
+    //dd($collect->map(fn ($item) => $item * 2));
+    dd($collect->max());
+});

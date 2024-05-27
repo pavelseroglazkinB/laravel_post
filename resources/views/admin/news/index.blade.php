@@ -10,10 +10,23 @@
       </div>
       <div class="table-responsive">
         @include('inc.message')
-        <table class="table table-striped table-sm">
+        <select id="filter">
+          <option>selected</option>
+          <option>
+            {{ \App\Enums\News\Status::DRAFT->value }}
+          </option>
+          <option>
+            {{ \App\Enums\News\Status::ACTIVE->value }}
+          </option>
+          <option>
+            {{ \App\Enums\News\Status::BLOCKED->value }}
+          </option>
+        </select>
+        <table class="table table-bordered table-striped table-sm">
           <thead>
             <tr>
               <th scope="col">#</th>
+              <th scope="col">Категория</th>
               <th scope="col">Заголовок</th>
               <th scope="col">Автор</th>
               <th scope="col">Статус</th>
@@ -25,6 +38,7 @@
             @forelse($newsList as $news)
             <tr>
                 <td>{{ $news->id }}</td>
+                <td>{{ $news->category->title }}</td>
                 <td>{{ $news->title }}</td>
                 <td>{{ $news->author }}</td>
                 <td>{{ $news->status }}</td>
@@ -32,7 +46,7 @@
                 <td>
                   <a href="{{ route('admin.news.edit', ['news' => $news]) }}">
                     Edit</a> &nbsp; 
-                    <a href="">
+                    <a href="javascript:;" class="delete" rel="{{ $news->id }}">
                       Delete
                     </a>
                 </td>
@@ -44,5 +58,43 @@
             @endforelse
           </tbody>
           </table>
+          {{ $newsList->links() }}
       </div>
 @endsection
+@push('js')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let filter = document.getElementById("filter");
+            filter.addEventListener("change", function (event) {
+               location.href = "?f=" + this.value;
+           });
+
+            let elements = document.querySelectorAll(".delete");
+            elements.forEach(function (element, key) {
+               element.addEventListener('click', function() {
+               const id = this.getAttribute('rel');
+               if (confirm(`Подтверждаете удаление записи с #ID = ${id}`)) {
+                   send(`/admin/news/${id}`).then( () => {
+                      location.reload();
+                   });
+               } else {
+                   alert("Вы отменили удаление записи");
+               }
+               });
+            });
+        });
+
+        async function send(url) {
+            let response = await fetch (url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            let result = await response.json();
+            return result.ok;
+        }
+
+    </script>
+@endpush
